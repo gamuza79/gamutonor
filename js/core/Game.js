@@ -219,8 +219,9 @@ export class TetonorGame {
             else if (this.state.mode === 'ultra') hideCount = 6;
             else {
                 // Sandbox
-                if (count === 4) hideCount = 2;
-                else if (count > 4) hideCount = 3;
+                if (count === 4) hideCount = 1;
+                else if (count === 6) hideCount = 2;
+                else if (count > 6) hideCount = 3;
             }
 
             const indices = Array.from({ length: count }, (_, i) => i);
