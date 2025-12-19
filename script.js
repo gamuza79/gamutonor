@@ -733,8 +733,9 @@ class GamutonorGame {
             if (this.state.mode === 'campaign') hideCount = this.state.levelHiddenCount;
             else if (this.state.mode === 'ultra') hideCount = 6;
             else {
-                if (this.state.difficulty === 4) hideCount = 2;
-                if (this.state.difficulty > 4) hideCount = 3;
+                if (this.state.difficulty === 4) hideCount = 1;
+                else if (this.state.difficulty === 6) hideCount = 2;
+                else if (this.state.difficulty > 6) hideCount = 3;
             }
             const indices = Array.from({ length: count }, (_, i) => i);
             this.state.hiddenIndices = indices.slice(0, hideCount);
