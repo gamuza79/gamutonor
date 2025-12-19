@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Gamutonor - Puzzle Matemático</title>
+    <link rel="stylesheet" href="style.css?v=6">
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+</head>
+
+<body>
+    <div class="app-container layout-wrapper">
+        <!-- SIDEBAR RULES REMOVED -->
+
+        <!-- RULES SIDEBAR -->
+        <aside class="rules-sidebar">
+            <h2><strong>Reglas</strong></h2>
+            <div class="rules-content">
+                <p><strong>1. Objetivo:</strong> Encuentra pares que generen los números del tablero.</p>
+                <p><strong>2. Mecánica:</strong> Cada casilla es <strong>SUMA (+)</strong> o <strong>PRODUCTO
+                        (×)</strong> de dos números de abajo.</p>
+                <p><strong>3. Selección:</strong> Toca una casilla, luego toca los dos números correctos.</p>
+                <p><strong>4. Incógnitas (?):</strong> Algunos números están ocultos. Deduce su valor por lógica.</p>
+                <hr style="border-color: rgba(255,255,255,0.1); margin: 15px 0;">
+                <ul style="padding-left: 20px; font-size: 0.9rem;">
+                    <li><strong>2 Cifras:</strong> Tilda la opción en el teclado para escribir números > 9.</li>
+                    <li><strong>Auto-Fin:</strong> Si queda 1 solo bloque, se selecciona solo, solo clickea los números.
+                    </li>
+                </ul>
+            </div>
+            <div style="margin-top: auto; font-size: 0.8rem; color: #64748b; text-align: center;">
+                Gamutonor v1.0
+            </div>
+        </aside>
+
+        <!-- MAIN GAME AREA -->
+        <div class="main-content">
+            <!-- HEADER -->
+            <header>
+                <h1>Gamutonor</h1>
+                <p style="margin-bottom: 20px;">Puzzle Matemático de Deducción</p>
+            </header>
+
+            <!-- MAIN MENU -->
+            <div id="main-menu" class="menu-screen">
+                <button id="btn-campaign" class="btn primary huge-btn">Modo Competitivo (25 Niveles)</button>
+                <button id="btn-sandbox" class="btn primary huge-btn">Modo Libre</button>
+                <button id="btn-ultra" class="btn danger huge-btn" disabled
+                    style="background: #334155; color: #94a3b8; cursor: not-allowed; opacity: 0.7;">Modo Hardcore
+                    (Próximamente)</button>
+            </div>
+
+            <!-- GAME UI (Hidden initially) -->
+            <main id="game-ui" class="game-board hidden">
+                <!-- CAMPAIGN HUD -->
+                <div id="campaign-hud" class="hud hidden">
+                    <div class="hud-item">Nivel: <span id="level-display">1</span></div>
+                    <div class="hud-item timer-container">
+                        <span class="timer-label">Tiempo</span>
+                        <span id="time-display" class="timer">60</span>
+                    </div>
+                    <div class="hud-item">Puntos: <span id="score-display">0</span></div>
+                </div>
+
+                <!-- SANDBOX CONTROLS -->
+                <div id="sandbox-controls" class="stats-bar">
+                    <div class="stat">
+                        <label for="difficulty-select">Dificultad:</label>
+                        <select id="difficulty-select" class="difficulty-select">
+                            <option value="4">Fácil (4)</option>
+                            <option value="6" selected>Normal (6)</option>
+                            <option value="8">Difícil (8)</option>
+                            <option value="12">Muy Difícil (12)</option>
+                            <option value="16">Experto (16)</option>
+                        </select>
+                    </div>
+                    <div class="stat">Restantes: <span id="remaining-count">0</span></div>
+                </div>
+
+                <div id="grid-container" class="grid-container">
+                    <!-- Grid items will be generated here -->
+                </div>
+
+                <div class="divider" style="position: relative;">
+                    <span class="operator-hint">+</span>
+                    <div class="line"></div>
+                    <div id="game-message" class="game-message"></div>
+                    <span class="operator-hint">×</span>
+                </div>
+
+                <div id="strip-container" class="strip-container">
+                    <!-- Strip items will be generated here -->
+                </div>
+
+                <div class="controls">
+                    <button id="new-game-btn" class="btn primary">Nuevo Juego</button>
+                    <button id="btn-show-solution" class="btn secondary">Ver Solución</button>
+                    <button id="toggle-mode-btn" class="btn secondary">Volver</button>
+                    <!-- HELP BTN REMOVED -->
+                    <button id="exit-btn" class="btn delete-btn">Salir</button>
+                </div>
+            </main>
+        </div>
+
+
+        <!-- HISTORY SIDEBAR -->
+        <aside class="history-sidebar">
+            <div id="high-score-container" class="high-score-box">
+                <div
+                    style="display: flex; align-items: center; justify-content: center; gap: 10px; margin-bottom: 10px;">
+                    <h3 style="color: var(--accent-color); margin: 0;">MEJOR PUNTAJE</h3>
+                    <button id="btn-share-score" class="icon-btn" title="Copiar para Discord">
+                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="2">
+                            <rect x="9" y="9" width="13" height="13" rx="2" ry="2"></rect>
+                            <path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div style="display: flex; justify-content: space-around; width: 100%;">
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Nivel</div>
+                        <div id="high-score-level" style="font-size: 1.5rem; font-weight: 800; color: white;">1</div>
+                    </div>
+                    <div style="text-align: center;">
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">Puntos</div>
+                        <div id="high-score" style="font-size: 1.5rem; font-weight: 800; color: white;">0</div>
+                    </div>
+                </div>
+            </div>
+
+            <h3 style="margin-bottom: 15px; color: var(--text-color);">Historial</h3>
+            <div id="history-list" class="history-list">
+                <!-- History items will be added here -->
+                <div class="history-placeholder">Sin partidas aún</div>
+            </div>
+        </aside>
+    </div>
+
+    <!-- Input Modal for Puzzle Mode -->
+    <div id="input-modal" class="modal hidden">
+        <div class="modal-content">
+            <h3>Ingresa el número</h3>
+            <div style="margin-bottom: 10px;">
+                <label
+                    style="color: var(--text-color); font-weight: bold; display: flex; align-items: center; justify-content: center; gap: 8px; cursor: pointer;">
+                    <input type="checkbox" id="input-mode-toggle" style="width: 18px; height: 18px;">
+                    Modo 2 Cifras
+                </label>
+            </div>
+            <div class="numpad">
+                <button class="num-btn">1</button>
+                <button class="num-btn">2</button>
+                <button class="num-btn">3</button>
+                <button class="num-btn">4</button>
+                <button class="num-btn">5</button>
+                <button class="num-btn">6</button>
+                <button class="num-btn">7</button>
+                <button class="num-btn">8</button>
+                <button class="num-btn">9</button>
+                <button class="num-btn delete-btn">Borrar</button>
+                <button class="num-btn">0</button>
+                <button id="input-confirm-btn" class="num-btn action-btn">Confirmar</button>
+            </div>
+            <button id="input-close-btn" class="btn secondary" style="margin-top: 10px;">Cancelar</button>
+        </div>
+    </div>
+
+    <!-- Rules Modal -->
+    <div id="rules-modal" class="modal hidden">
+        <div class="modal-content">
+            <h2>Reglas de Gamutonor</h2>
+            <div class="rules-text">
+                <p>1. <strong>Objetivo:</strong> Encuentra los pares de números en la tira inferior que generen los
+                    números del tablero superior.</p>
+                <p>2. <strong>Mecánica:</strong> Cada número del tablero es la <strong>SUMA</strong> o el
+                    <strong>PRODUCTO</strong> de dos números de abajo.
+                </p>
+                <p>3. <strong>Uso:</strong> Selecciona una casilla del tablero y luego los dos números de la tira
+                    que creas que son sus "padres".</p>
+                <p>4. <strong>Modo Puzzle:</strong> Algunos números de la tira están ocultos (?). Se revelarán
+                    cuando aciertes una combinación que los use.</p>
+            </div>
+            <button id="rules-close-btn" class="btn primary">Entendido</button>
+        </div>
+    </div>
+
+    <!-- Modal for Game Over -->
+    <div id="modal" class="modal hidden">
+        <div class="modal-content">
+            <h2 id="modal-title">¡Completado!</h2>
+            <p id="modal-message">Has resuelto el Gamutonor.</p>
+            <button id="modal-close-btn" class="btn">Continuar</button>
+        </div>
+    </div>
+
+    <div id="toast" class="toast hidden"></div>
+    <script src="script.js?v=7"></script>
+</body>
+
+</html>
