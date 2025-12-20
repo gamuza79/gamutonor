@@ -140,6 +140,7 @@ class GamutonorGame {
         this.timeDisplay = document.getElementById('time-display');
         this.sandboxTimeDisplay = document.getElementById('sandbox-timer');
         this.btnToggleTimer = document.getElementById('btn-toggle-timer');
+        this.btnUndo = document.getElementById('btn-undo');
         this.exitBtn = document.getElementById('exit-btn');
 
         this.newGameBtn = document.getElementById('new-game-btn');
@@ -158,7 +159,8 @@ class GamutonorGame {
             difficulty: 4, // Number of strip items (3, 4, 5, 6)
             hiddenIndices: [], // Indices of numbers hidden in puzzle mode
             guessedNumbers: {}, // Key: index, Value: number (user guess)
-            usedStatus: {} // Key: index, Value: { sum: boolean, product: boolean }
+            usedStatus: {}, // Key: index, Value: { sum: boolean, product: boolean }
+            moveHistory: [] // Stack of moves for Undo
         };
 
         // State extension
@@ -266,6 +268,10 @@ class GamutonorGame {
                 this.btnToggleTimer.title = isHidden ? "Mostrar Tiempo" : "Ocultar Tiempo";
                 this.btnToggleTimer.style.opacity = isHidden ? '0.5' : '1';
             });
+        }
+
+        if (this.btnUndo) {
+            this.btnUndo.addEventListener('click', () => this.undoLastMove());
         }
 
         // Numpad Listeners
@@ -916,6 +922,28 @@ class GamutonorGame {
         }
     }
 
+    undoLastMove() {
+        if (this.state.moveHistory.length === 0) return;
+
+        const move = this.state.moveHistory.pop();
+        const item = this.state.gridNumbers.find(g => g.id === move.targetId);
+
+        if (item) {
+            this.unsolveItem(item); // Uses stored solvedIndices/logic inside
+        }
+
+        // Ensure manual cleanup just in case unsolveItem logic varies
+        // unsolveItem handles the usedStatus based on solvedIndices or move data
+        // It relies on item.solvedIndices which might have been cleared?
+        // Wait, unsolveItem uses `item.solvedIndices` OR `item.parents`. 
+        // We need to restore usedStatus. `unsolveItem` does it if data is there.
+        // Let's rely on unsolveItem logic I wrote earlier which looks solid.
+        // But we must update UI.
+
+        this.audio.play('unsolve');
+        this.render();
+    }
+
     handleGridClick(id) {
         const item = this.state.gridNumbers.find(g => g.id === id);
 
@@ -1154,6 +1182,13 @@ class GamutonorGame {
             }
 
             // Success - Apply Changes
+            // Record Move for Undo
+            this.state.moveHistory.push({
+                targetId: targetItem.id,
+                indices: [idx1, idx2],
+                type: matchType
+            });
+
             if (matchType === 'sum') {
                 this.state.usedStatus[idx1].sum = true;
                 this.state.usedStatus[idx2].sum = true;
@@ -1312,6 +1347,14 @@ class GamutonorGame {
             // Content Logic
             if (isHidden) {
                 el.classList.add('hidden-value');
+                // Check if correct (Green Visual Feedback)
+                // Logic: hasGuess AND Guess == Actual
+                const isCorrect = hasGuess && (guessedVal === num);
+
+                if (isCorrect) {
+                    el.classList.add('correct');
+                }
+
                 if (hasGuess) {
                     el.textContent = guessedVal;
                     el.classList.add('guessed');
@@ -1372,6 +1415,15 @@ class GamutonorGame {
         // Append in order: Knowns then Unknowns
         knownEls.forEach(el => this.stripContainer.appendChild(el));
         unknownEls.forEach(el => this.stripContainer.appendChild(el));
+
+        // Update Undo Button Visibility
+        if (this.btnUndo) {
+            if (this.state.mode === 'sandbox' && this.state.moveHistory.length > 0) {
+                this.btnUndo.classList.add('visible');
+            } else {
+                this.btnUndo.classList.remove('visible');
+            }
+        }
     }
 
     getStripValue(index) {

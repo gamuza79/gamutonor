@@ -259,6 +259,21 @@ header p {
     /* Fixed height to prevent jump */
 }
 
+#btn-undo {
+    transition: opacity 0.3s, transform 0.2s;
+}
+
+#btn-undo.visible {
+    opacity: 1 !important;
+    pointer-events: auto !important;
+    cursor: pointer;
+}
+
+#btn-undo:hover {
+    transform: scale(1.1);
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
 .line {
     flex: 1;
     height: 1px;
@@ -370,6 +385,19 @@ header p {
     background-color: var(--accent-color);
     color: #fff;
     /* When actually selected for usage, it turns yellow blocks */
+}
+
+/* SUCCESS FEEDBACK */
+.strip-item.hidden-value.correct {
+    border-color: var(--success-color);
+    color: var(--success-color);
+    background-color: rgba(16, 185, 129, 0.1);
+}
+
+.strip-item.hidden-value.correct.guessed {
+    /* If guessed correctly */
+    color: var(--success-color);
+    border-color: var(--success-color);
 }
 
 /* USAGE INDICATORS */
