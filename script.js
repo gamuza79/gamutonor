@@ -170,7 +170,11 @@ class GamutonorGame {
             level: 1,
             score: 0,
             timer: 0,
-            timerInterval: null
+            level: 1,
+            score: 0,
+            timer: 0,
+            timerInterval: null,
+            cheated: false // Flag to disable achievement/history on "Show Solution"
         };
 
         this.inputModal = document.getElementById('input-modal');
@@ -1052,6 +1056,9 @@ class GamutonorGame {
     }
 
     solveGame() {
+        this.stopTimer();
+        this.state.cheated = true; // Mark as cheated to prevent Win Popup/History
+
         // 1. Reveal all hidden properties by filling them as "guesses"
         // This keeps the visual style of the unknown box but shows the number.
         this.state.hiddenIndices.forEach(idx => {
@@ -1255,12 +1262,20 @@ class GamutonorGame {
     }
 
     checkWinCondition() {
+        const allSolved = this.state.gridNumbers.every(g => g.solved);
         if (allSolved) {
             this.stopTimer();
-            this.audio.play('win'); // Sound on level pass
+            // this.audio.play('win'); // Moved inside constraint
 
             // If Game Over (played after loss), do not show modal
             if (this.state.gameOver) return;
+
+            // If Cheated (Show Solution used)
+            if (this.state.cheated) {
+                return; // Do nothing on win if cheated
+            }
+
+            this.audio.play('win');
 
             if (this.state.mode === 'campaign') {
                 this.showModal(`¡Nivel ${this.state.level} Completado!`, `Puntos del nivel: ${this.state.level * 100 + this.state.timer * 10}`);
@@ -1348,8 +1363,10 @@ class GamutonorGame {
             if (isHidden) {
                 el.classList.add('hidden-value');
                 // Check if correct (Green Visual Feedback)
-                // Logic: hasGuess AND Guess == Actual
-                const isCorrect = hasGuess && (guessedVal === num);
+                // Logic: hasGuess AND Guess == Actual AND Used in a match
+                // We check if it has been used in at least one operation
+                const isUsed = status.sum || status.product;
+                const isCorrect = hasGuess && (guessedVal === num) && isUsed;
 
                 if (isCorrect) {
                     el.classList.add('correct');

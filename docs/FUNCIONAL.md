@@ -2,7 +2,7 @@
 
 - **Interacción:**
   - **Click en Botón Undo (↩️):** En Modo Libre, permite deshacer el último match realizado.
-  - **Feedback Visual:** En Modo Puzzle, si adivinas correctamente una incógnita, la casilla se volverá **verde** indicando éxito.
+  - **Feedback Visual:** En Modo Puzzle, si adivinas correctamente una incógnita **y la usas en un match**, la casilla se volverá **verde** confirmando su valor.
 - **Teclado:** Manejo de numpad para adivinar.
 **Gamutonor** (anteriormente Tetonor) es un videojuego de puzzle matemático y deducción lógica. El objetivo principal es despejar un tablero de números encontrando pares de cifras en una "tira" inferior que, mediante operaciones matemáticas básicas (Suma o Multiplicación), den como resultado los números del tablero.
 
