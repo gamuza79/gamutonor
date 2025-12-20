@@ -43,6 +43,7 @@
 - **Personalización:**
   - **Dificultad:** Seleccionable (4, 6, 8, 12, 16 números).
   - **Modo Puzzle:** Activación manual de incógnitas.
+  - **Temporizador Opcional:** Un cronómetro que cuenta el tiempo de juego, oculto por defecto para evitar estrés. Puede activarse/desactivarse con un botón.
 
 ### 3.3. Modo Hardcore (Ultra)
 - **Configuración:** Tablero gigante de 16 números.

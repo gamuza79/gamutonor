@@ -76,7 +76,18 @@
                         </select>
                     </div>
                     <div class="stat">Restantes: <span id="remaining-count">0</span></div>
-                    <div class="stat">Tiempo: <span id="sandbox-timer">00:00</span></div>
+                    <div class="stat" style="display: flex; align-items: center; gap: 8px;">
+                        Tiempo:
+                        <button id="btn-toggle-timer" class="icon-btn" title="Mostrar Tiempo" style="padding: 2px;">
+                            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                                stroke-width="2">
+                                <circle cx="12" cy="12" r="10"></circle>
+                                <polyline points="12 6 12 12 16 14"></polyline>
+                            </svg>
+                        </button>
+                        <span id="sandbox-timer" class="hidden"
+                            style="margin-left: 5px; color: var(--accent-color); font-weight: bold;">00:00</span>
+                    </div>
                 </div>
 
                 <div id="grid-container" class="grid-container">

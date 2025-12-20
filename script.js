@@ -137,7 +137,9 @@ class GamutonorGame {
         this.levelDisplay = document.getElementById('level-display');
         this.scoreDisplay = document.getElementById('score-display');
         this.timeDisplay = document.getElementById('time-display');
+        this.timeDisplay = document.getElementById('time-display');
         this.sandboxTimeDisplay = document.getElementById('sandbox-timer');
+        this.btnToggleTimer = document.getElementById('btn-toggle-timer');
         this.exitBtn = document.getElementById('exit-btn');
 
         this.newGameBtn = document.getElementById('new-game-btn');
@@ -250,6 +252,15 @@ class GamutonorGame {
         if (this.btnSoundToggle) {
             this.updateSoundIcon();
             this.btnSoundToggle.addEventListener('click', () => this.toggleSound());
+        }
+
+        if (this.btnToggleTimer) {
+            this.btnToggleTimer.addEventListener('click', () => {
+                this.sandboxTimeDisplay.classList.toggle('hidden');
+                const isHidden = this.sandboxTimeDisplay.classList.contains('hidden');
+                this.btnToggleTimer.title = isHidden ? "Mostrar Tiempo" : "Ocultar Tiempo";
+                this.btnToggleTimer.style.opacity = isHidden ? '0.5' : '1';
+            });
         }
 
         // Numpad Listeners
