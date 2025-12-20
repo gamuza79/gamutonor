@@ -137,6 +137,7 @@ class GamutonorGame {
         this.levelDisplay = document.getElementById('level-display');
         this.scoreDisplay = document.getElementById('score-display');
         this.timeDisplay = document.getElementById('time-display');
+        this.sandboxTimeDisplay = document.getElementById('sandbox-timer');
         this.exitBtn = document.getElementById('exit-btn');
 
         this.newGameBtn = document.getElementById('new-game-btn');
@@ -620,6 +621,23 @@ class GamutonorGame {
         }, 1000);
     }
 
+    startStopwatch() {
+        this.stopTimer(); // Clear any existing interval
+        this.state.timer = 0;
+        this.updateStopwatchDisplay();
+        this.state.timerInterval = setInterval(() => {
+            this.state.timer++;
+            this.updateStopwatchDisplay();
+        }, 1000);
+    }
+
+    updateStopwatchDisplay() {
+        if (!this.sandboxTimeDisplay) return;
+        const minutes = Math.floor(this.state.timer / 60).toString().padStart(2, '0');
+        const seconds = (this.state.timer % 60).toString().padStart(2, '0');
+        this.sandboxTimeDisplay.textContent = `${minutes}:${seconds}`;
+    }
+
     // ... (stopTimer, updateTimeDisplay, nextLevel kept same) ...
     stopTimer() {
         if (this.state.timerInterval) clearInterval(this.state.timerInterval);
@@ -653,8 +671,9 @@ class GamutonorGame {
     }
 
     startNewGame() {
+        this.stopTimer();
         if (this.state.mode === 'sandbox') {
-            this.stopTimer();
+            this.startStopwatch();
         }
 
         this.gridContainer.innerHTML = '';
