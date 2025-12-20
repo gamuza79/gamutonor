@@ -1,7 +1,13 @@
 class AudioController {
     constructor() {
         this.ctx = null;
-        this.enabled = true;
+        this.enabled = localStorage.getItem('audio_muted') !== 'true'; // Default true (not muted)
+    }
+
+    toggle() {
+        this.enabled = !this.enabled;
+        localStorage.setItem('audio_muted', (!this.enabled).toString());
+        return this.enabled;
     }
 
     init() {
@@ -136,7 +142,9 @@ class GamutonorGame {
         this.newGameBtn = document.getElementById('new-game-btn');
         this.toggleModeBtn = document.getElementById('toggle-mode-btn');
         this.difficultySelect = document.getElementById('difficulty-select');
+        this.difficultySelect = document.getElementById('difficulty-select');
         this.btnShowSolution = document.getElementById('btn-show-solution');
+        this.btnSoundToggle = document.getElementById('btn-sound-toggle'); // New Button
 
         this.state = {
             stripNumbers: [],
@@ -238,6 +246,11 @@ class GamutonorGame {
             });
         }
 
+        if (this.btnSoundToggle) {
+            this.updateSoundIcon();
+            this.btnSoundToggle.addEventListener('click', () => this.toggleSound());
+        }
+
         // Numpad Listeners
         document.querySelectorAll('.num-btn').forEach(btn => {
             btn.addEventListener('click', (e) => this.handleNumpad(e.target.textContent));
@@ -336,6 +349,37 @@ class GamutonorGame {
     }
 
     // ... (rest of methods)
+
+    toggleSound() {
+        const isEnabled = this.audio.toggle();
+        this.updateSoundIcon();
+        this.showToast(isEnabled ? "Sonido Activado" : "Sonido Desactivado", 'success');
+    }
+
+    updateSoundIcon() {
+        if (!this.btnSoundToggle) return;
+        // Simple text/emoji toggle or SVG replacement
+        if (this.audio.enabled) {
+            this.btnSoundToggle.innerHTML = `
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <path d="M19.07 4.93a10 10 0 0 1 0 14.14M15.54 8.46a5 5 0 0 1 0 7.07"></path>
+                </svg>
+            `;
+            this.btnSoundToggle.title = "Silenciar";
+            this.btnSoundToggle.classList.remove('muted');
+        } else {
+            this.btnSoundToggle.innerHTML = `
+                <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polygon points="11 5 6 9 2 9 2 15 6 15 11 19 11 5"></polygon>
+                    <line x1="23" y1="9" x2="17" y2="15"></line>
+                    <line x1="17" y1="9" x2="23" y2="15"></line>
+                </svg>
+            `;
+            this.btnSoundToggle.title = "Activar Sonido";
+            this.btnSoundToggle.classList.add('muted');
+        }
+    }
 
     handleNumpad(val) {
         if (val === 'Borrar') {
