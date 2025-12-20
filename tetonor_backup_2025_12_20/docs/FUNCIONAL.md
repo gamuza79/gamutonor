@@ -64,12 +64,8 @@
 - **Controles:** Botones para Nuevo Juego, Ver Solución, Volver, y Silenciar Sonido.
 
 ### 4.3. Barra Lateral (Historial)
-- **High Score / Mejor Tiempo:**
-  - En Modo Competitivo: Muestra el mejor puntaje y nivel alcanzado.
-  - En Modo Libre: Muestra el mejor tiempo logrado y la dificultad usada.
-- **Historial:** Lista de las últimas partidas filtradas por el modo actual.
-  - Competitivo: Resultado, Puntaje, Nivel.
-  - Libre: Resultado, Tiempo, Dificultad.
+- **High Score:** Muestra el mejor puntaje obtenido y el nivel alcanzado.
+- **Historial:** Lista de las últimas partidas con resultado (Victoria/Derrota), puntaje y tiempo.
 - **Botón Compartir:** Permite copiar el récord al portapapeles.
 
 ## 5. Sistema de Audio

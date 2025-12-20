@@ -181,17 +181,12 @@ class GamutonorGame {
         // History DOM
         this.highScoreDisplay = document.getElementById('high-score');
         this.highScoreLevelDisplay = document.getElementById('high-score-level');
-        this.sidebarTitle = document.getElementById('sidebar-title');
-        this.sidebarLabel1 = document.getElementById('sidebar-label-1');
-        this.sidebarLabel2 = document.getElementById('sidebar-label-2');
         this.historyList = document.getElementById('history-list');
 
         // Extend State for History
-        this.state.history = []; // { time: 'HH:MM', score: number, level: number, difficulty: number, result: 'Win'|'Loss', mode: 'campaign'|'sandbox' }
+        this.state.history = []; // { time: 'HH:MM', score: number, level: number, result: 'Win'|'Loss' }
         this.state.highScore = 0;
         this.state.highScoreLevel = 1;
-        this.state.bestTime = null; // Seconds (for Sandbox)
-        this.state.bestTimeDifficulty = 4; // Difficulty of best time
 
         this.init();
     }
@@ -309,31 +304,6 @@ class GamutonorGame {
         this.startNewGame();
     }
 
-    updateSidebarUI() {
-        if (this.state.mode === 'sandbox') {
-            this.sidebarTitle.textContent = "MEJOR TIEMPO";
-            this.sidebarLabel1.textContent = "Dificultad";
-            this.sidebarLabel2.textContent = "Tiempo";
-
-            this.highScoreLevelDisplay.textContent = this.state.bestTimeDifficulty || '-';
-            this.highScoreDisplay.textContent = this.state.bestTime ? this.formatTime(this.state.bestTime) : '--:--';
-        } else {
-            this.sidebarTitle.textContent = "MEJOR PUNTAJE";
-            this.sidebarLabel1.textContent = "Nivel";
-            this.sidebarLabel2.textContent = "Puntos";
-
-            this.highScoreLevelDisplay.textContent = this.state.highScoreLevel;
-            this.highScoreDisplay.textContent = this.state.highScore;
-        }
-        this.renderHistory();
-    }
-
-    formatTime(seconds) {
-        const m = Math.floor(seconds / 60).toString().padStart(2, '0');
-        const s = (seconds % 60).toString().padStart(2, '0');
-        return `${m}:${s}`;
-    }
-
     addToHistory(result) {
         // Safety check if history sidebar is removed from DOM
         if (!this.historyList) return;
@@ -341,96 +311,51 @@ class GamutonorGame {
         const now = new Date();
         const timeStr = now.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
 
-        let run;
+        // Update High Score
+        if (this.state.score > this.state.highScore) {
+            this.state.highScore = this.state.score;
+            this.state.highScoreLevel = this.state.level; // Track level too
 
-        if (this.state.mode === 'sandbox') {
-            // Sandbox Logic
-            const elapsedTime = this.state.timer; // In sandbox, timer counts UP
-
-            // Update Best Time (Lower is better)
-            // Only if result is win
-            if (result === 'win') {
-                if (this.state.bestTime === null || elapsedTime < this.state.bestTime) {
-                    this.state.bestTime = elapsedTime;
-                    this.state.bestTimeDifficulty = this.state.difficulty;
-                }
+            if (this.highScoreDisplay) {
+                this.highScoreDisplay.textContent = this.state.highScore;
             }
-
-            run = {
-                time: timeStr,
-                elapsedTime: elapsedTime,
-                difficulty: this.state.difficulty,
-                result: result,
-                mode: 'sandbox'
-            };
-
-        } else {
-            // Campaign Logic
-            // Update High Score
-            if (this.state.score > this.state.highScore) {
-                this.state.highScore = this.state.score;
-                this.state.highScoreLevel = this.state.level; // Track level too
+            if (this.highScoreLevelDisplay) {
+                this.highScoreLevelDisplay.textContent = this.state.highScoreLevel;
             }
-
-            run = {
-                time: timeStr,
-                score: this.state.score,
-                level: this.state.level,
-                result: result, // 'win' or 'loss'
-                mode: 'campaign'
-            };
         }
 
+        // Add Run
+        const run = {
+            time: timeStr,
+            score: this.state.score,
+            level: this.state.level,
+            result: result // 'win' or 'loss'
+        };
         this.state.history.unshift(run); // Newest first
 
-        // Update Stats Display immediately
-        this.updateSidebarUI();
+        this.renderHistory();
     }
 
     renderHistory() {
         if (!this.historyList) return;
 
         this.historyList.innerHTML = '';
-
-        // Filter history by current mode (User Request)
-        // If mode is 'ultra', show as campaign? Or 'ultra' specific? "Modo competitivo queda exacto".
-        // Let's assume Ultra uses Score logic so it maps to Campaign view, or filter specifically.
-        // User asked "in sandbox ... show ... diff/time", "competitive ... exact as is".
-
-        let filteredHistory = [];
-        const isSandbox = this.state.mode === 'sandbox';
-
-        filteredHistory = this.state.history.filter(h => {
-            if (isSandbox) return h.mode === 'sandbox';
-            else return h.mode !== 'sandbox'; // Show Campaign and Ultra
-        });
-
-        if (filteredHistory.length === 0) {
+        if (this.state.history.length === 0) {
             this.historyList.innerHTML = '<div class="history-placeholder">Sin partidas aún</div>';
             return;
         }
 
-        filteredHistory.forEach(run => {
+        this.state.history.forEach(run => {
             const card = document.createElement('div');
             card.className = `history-card ${run.result === 'win' ? 'win' : 'loss'}`;
 
-            if (run.mode === 'sandbox') {
-                card.innerHTML = `
-                    <div class="history-info">
-                        <span class="history-time">${run.time}</span>
-                        <span style="font-size: 0.8rem;">Dif. ${run.difficulty}</span>
-                    </div>
-                    <div class="history-score">${this.formatTime(run.elapsedTime)}</div>
-                `;
-            } else {
-                card.innerHTML = `
-                    <div class="history-info">
-                        <span class="history-time">${run.time}</span>
-                        <span style="font-size: 0.8rem;">Nivel ${run.level}</span>
-                    </div>
-                    <div class="history-score">${run.score} pts</div>
-                `;
-            }
+            card.innerHTML = `
+                <div class="history-info">
+                    <span class="history-time">${run.time}</span>
+                    <span style="font-size: 0.8rem;">Nivel ${run.level}</span>
+                </div>
+                <div class="history-score">${run.score} pts</div>
+            `;
             this.historyList.appendChild(card);
         });
     }
@@ -525,9 +450,6 @@ class GamutonorGame {
         this.sandboxControls.classList.remove('hidden');
         this.toggleModeBtn.style.display = 'block';
         this.toggleModeBtn.textContent = 'Modo Puzzle: OFF'; // Sync text
-        this.toggleModeBtn.style.display = 'block';
-        this.toggleModeBtn.textContent = 'Modo Puzzle: OFF'; // Sync text
-        this.updateSidebarUI();
         this.startNewGame();
     }
 
@@ -540,7 +462,6 @@ class GamutonorGame {
         this.campaignHUD.classList.remove('hidden');
         this.sandboxControls.classList.add('hidden');
         this.toggleModeBtn.style.display = 'none'; // Force hide completely
-        this.updateSidebarUI();
         this.startLevel(1);
     }
 
@@ -552,7 +473,6 @@ class GamutonorGame {
         this.campaignHUD.classList.add('hidden');
         this.sandboxControls.classList.add('hidden');
         this.toggleModeBtn.style.display = 'none';
-        this.updateSidebarUI();
 
         this.startNewGame();
         this.startTimer(60);
@@ -1220,6 +1140,7 @@ class GamutonorGame {
     }
 
     checkWinCondition() {
+        const allSolved = this.state.gridNumbers.every(g => g.solved);
         if (allSolved) {
             this.stopTimer();
             this.audio.play('win'); // Sound on level pass
@@ -1230,9 +1151,7 @@ class GamutonorGame {
             if (this.state.mode === 'campaign') {
                 this.showModal(`¡Nivel ${this.state.level} Completado!`, `Puntos del nivel: ${this.state.level * 100 + this.state.timer * 10}`);
             } else {
-                // Sandbox Win
-                this.addToHistory('win');
-                this.showModal('¡Felicidades!', `Has completado el tablero en ${this.formatTime(this.state.timer)}.`);
+                this.showModal('¡Felicidades!', 'Has completado el tablero.');
             }
         }
     }
